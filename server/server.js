@@ -30,6 +30,8 @@ app.listen(3000,()=>{
   console.log('server startet on p 3000');
 })
 
+
+module.exports ={app};
 //
 // let newUser = new usr({
 //    email: '      mail@florkan.net'
