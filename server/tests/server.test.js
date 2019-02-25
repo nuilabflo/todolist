@@ -1,11 +1,11 @@
 const expect = require('expect');
 const request = require('supertest');
+const {ObjectId} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
-const todos = [{text:'first'},{text:'second'},{text:'third'}];
-
+const todos = [{_id: new ObjectId(),text:'first'},{_id:new ObjectId(),text:'second'},{_id:new ObjectId(),text:'third'}];
 beforeEach((done)=>{
   Todo.deleteMany({}).then(()=>{
     Todo.insertMany(todos);
@@ -67,3 +67,32 @@ describe('GET /todos', ()=>{
       .end(done);
   })
 });
+
+describe('GET/todos/:id',()=>{
+    it('should return todo doc', (done)=>{
+      request(app)
+        .get(`/todos/${todos[0]._id.toHexString()}`)
+        .expect(200)
+        .expect((res)=>{
+          console.log(res.body.text);
+
+          expect(res.body.text).toBe(todos[0].text);
+        })
+        .end(done);
+    })
+
+    it('return 404 if td not fond',(done)=>{
+        var hexId = new ObjectId().toHexString();
+
+        request(app)
+          .get(`/todos/${hexId}`)
+          .expect(404)
+          .end(done);
+    });
+    it('return 404 if td non-object ids',(done)=>{
+        request(app)
+          .get(`/todos/123agd`)
+          .expect(404)
+          .end(done);
+    })
+})
